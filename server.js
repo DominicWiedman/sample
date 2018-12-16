@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const exphbs = require('express-handlebars');
 const methodOverride = require('method-override');
 const flash = require('connect-flash');
@@ -9,6 +10,7 @@ const app = express();
 const port = 8000;
 
 const ideas =require('./routes/ideas');
+const users =require('./routes/users');
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/sample', {
@@ -17,15 +19,14 @@ mongoose.connect('mongodb://localhost/sample', {
     .then(()=> console.log('MongoDB Connected!'))
     .catch(err => console.log(err));
 
-
-
-
 app.engine('handlebars', exphbs({
     defaultLayout: 'main'
 }));
 app.set('view engine', 'handlebars');
 
 app.use(bodyParser.urlencoded({extended: false}));
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(methodOverride('_method'));
 
@@ -44,7 +45,6 @@ app.use((req, res, next)=>{
     next();
 });
 
-
 app.get('/', (req, res)=> {
     res.render('index');
 });
@@ -53,17 +53,8 @@ app.get('/about', (req, res)=> {
     res.render('about');
 });
 
-
-
-app.get('/user/login', (req, res)=>{
-    res.send('login');
-});
-
-app.get('/user/register', (req, res)=>{
-    res.send('reg');
-});
-
 app.use('/ideas', ideas);
+app.use('/users', users);
 
 app.listen(port, ()=>{
     console.log(`Server started on port ${port}`);
